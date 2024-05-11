@@ -1,9 +1,10 @@
+from typing import Dict
 import logging
 import re
 import httpx
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel
+#from pydantic import BaseModel
 
 # 로거 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -65,7 +66,7 @@ def get_area(s):
 
 # 크롤링 로직, http://127.0.0.1:8000/crawl/
 @app.post("/crawl")
-async def crawl_data(data:dict[any, any]):
+async def crawl_data(data:Dict[str, str]):
     field = data["field"]
     person = data["person"]
     sort = data["sort"]
