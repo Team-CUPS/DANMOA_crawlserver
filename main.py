@@ -1,18 +1,22 @@
+import logging
 import re
 import httpx
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
+# 로거 설정
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # fastAPI 실행
 app = FastAPI()
 
 # 데이터 모델 정의
 class Item(BaseModel):  
-    field: str # 분야
-    person: str # 대상
-    sort: str # 모집상태
-    area: str # 지역
+    field: str = '' # 분야
+    person: str = '' # 대상
+    sort: str = '' # 모집상태
+    area: str = '' # 지역
     # page: str # 페이지
 
 # 분야 코드화 함수
@@ -63,6 +67,8 @@ def get_area(s):
 @app.post("/crawl")
 async def crawl_data(field: str = Query(None), person: str = Query(None), sort: str = Query(None), area: str = Query(None)):
     item = Item(field=field, person=person, sort=sort, area=area)
+    # 요청 로그 추가
+    logging.info(f"요청 받음: {item.field, item.person, item.sort, item.area}")
     try:
         # 플러터 데이터 페이로드에 매핑
         payload = {
