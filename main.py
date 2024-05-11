@@ -12,11 +12,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = FastAPI()
 
 # 데이터 모델 정의
-class Item(BaseModel):  
-    field: str = Query(...)
-    person: str = Query(...)
-    sort: str = Query(...)
-    area: str = Query(...)
+#class Item(BaseModel):  
+#    field: str = Query(...)
+#    person: str = Query(...)
+#    sort: str = Query(...)
+#   area: str = Query(...)
     # page: str # 페이지
 
 # 분야 코드화 함수
@@ -65,12 +65,11 @@ def get_area(s):
 
 # 크롤링 로직, http://127.0.0.1:8000/crawl/
 @app.post("/crawl")
-async def crawl_data(
-    field: str = Query(...),
-    person: str = Query(...),
-    sort: str = Query(...),
-    area: str = Query(...)
-):
+async def crawl_data(data:dict[any, any]):
+    field = data["field"]
+    person = data["person"]
+    sort = data["sort"]
+    area = data["area"]
     # 요청 로그 추가
     logging.info(f"요청 받음: {field}, {person}, {sort}, {area}")
     try:
