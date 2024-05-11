@@ -162,6 +162,6 @@ async def crawl_data(field: str = Query(None), person: str = Query(None), sort: 
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="127.0.0.1", port=8000)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
