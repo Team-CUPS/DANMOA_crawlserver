@@ -65,14 +65,14 @@ def get_area(s):
 
 # 크롤링 로직, http://127.0.0.1:8000/crawl/
 @app.post("/crawl")
-async def crawl_data(field, person, sort, area):
+async def crawl_data(field: str, person: str, sort: str, area: str):
     # 요청 로그 추가
     logging.info(f"요청 받음: {field, person, sort, area}")
     try:
         # 플러터 데이터 페이로드에 매핑
         payload = {
             'int_gbn': 1,
-            'Txt_bcode': get_bcode(field),
+            'Txt_bcode': get_bcode(field),  
             'Txt_sortkey': get_sortkey(sort),
             'Txt_sortword': 'desc',
             'Txt_code1[]': get_code1(person),
