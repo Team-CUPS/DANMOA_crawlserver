@@ -13,10 +13,10 @@ app = FastAPI()
 
 # 데이터 모델 정의
 class Item(BaseModel):  
-    field: str = '' # 분야
-    person: str = '' # 대상
-    sort: str = '' # 모집상태
-    area: str = '' # 지역
+    field: str = Query(...)
+    person: str = Query(...)
+    sort: str = Query(...)
+    area: str = Query(...)
     # page: str # 페이지
 
 # 분야 코드화 함수
