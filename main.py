@@ -35,7 +35,7 @@ def get_bcode(s):
 
 # 대상 코드화 함수
 def get_code1(s):
-    if (s == '전체'): return [26]
+    if (s == '전체'): return [30, 76, 58, 86]
     elif (s == '대학생'): return [30]
     elif (s == '대학원생'): return [76]
     elif (s == '일반인'): return [58]
@@ -154,8 +154,9 @@ async def crawl_data(data:Dict[str, str]):
                 print("심사 기간:", evaluation_period)
                 li_content.append(evaluation_period)
             #최종 content에 합산
-            contents.append(li_content)
-            print("-" * 80)  # 구분선
+            if (len(li_content) != 0):
+                contents.append(li_content)
+                print("-" * 80)  # 구분선
 
         return {"status": "success", "contents": contents}
     
