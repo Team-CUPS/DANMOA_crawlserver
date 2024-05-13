@@ -4,21 +4,12 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Query
-#from pydantic import BaseModel
 
 # 로거 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # fastAPI 실행
 app = FastAPI()
-
-# 데이터 모델 정의
-#class Item(BaseModel):  
-#    field: str = Query(...)
-#    person: str = Query(...)
-#    sort: str = Query(...)
-#   area: str = Query(...)
-    # page: str # 페이지
 
 # 분야 코드화 함수
 def get_bcode(s):
@@ -42,6 +33,17 @@ def get_code1(s):
     elif (s == '외국인'): return [86]
     else: return ''
 
+# 대상 전처리 함수
+def set_code1(s):
+    temp = ''
+    if ('대학생' in s): temp += '대학생 '
+    if ('대학원생' in s): temp += '대학원생 '
+    if ('일반인' in s): temp += '일반인 '
+    if ('외국인' in s): temp += '외국인 '
+    result = temp.split()
+    result = ", ".join(result)
+    return result
+
 # 모집상태 코드화 함수
 def get_sortkey(s):
     if (s == '전체'): return 'a.int_sort'
@@ -64,7 +66,7 @@ def get_area(s):
     else: return ''
 
 
-# 크롤링 로직, http://127.0.0.1:8000/crawl/
+# 크롤링 로직
 @app.post("/crawl")
 async def crawl_data(data:Dict[str, str]):
     field = data["field"]
@@ -138,7 +140,8 @@ async def crawl_data(data:Dict[str, str]):
                 target = re.sub(r"\s+", " ", target)  # 과도한 공백 제거
                 target = target.strip()
                 print("대상:", target)
-                li_content.append(target)
+                person_info = set_code1(target) # 대상 추출 시는 전처리 과정을 한번 더 거쳐 필요 없는 대상 단어를 문장에서 제거
+                li_content.append(person_info)
             # 공모전 접수기간 추출
             span_step_1 = li.find('span', class_='step-1')
             if span_step_1:
@@ -153,12 +156,15 @@ async def crawl_data(data:Dict[str, str]):
                 evaluation_period = evaluation_period.strip()
                 print("심사 기간:", evaluation_period)
                 li_content.append(evaluation_period)
-            #최종 content에 합산
+            # 최종 content에 합산, null인 리스트는 제외
             if (len(li_content) != 0):
                 contents.append(li_content)
                 print("-" * 80)  # 구분선
 
-        return {"status": "success", "contents": contents}
+        if (len(contents) == 0): # 비어있으면 알려줌
+            return {"status": "empty", "contents": contents}
+        else:
+            return {"status": "success", "contents": contents}
     
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occurred: {e}")
@@ -171,8 +177,3 @@ async def crawl_data(data:Dict[str, str]):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
-
-
-# if __name__ == "__main__":
-#    import uvicorn
-#    uvicorn.run(app)
