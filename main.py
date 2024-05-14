@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # fastAPI 실행
 app = FastAPI()
 
-# 분야 코드화 함수
+# 분야 코드화 함수 (in craw_contest)
 def get_bcode(s):
     if (s == '문학/문예'): return '030110001'
     elif (s == '경시/학문/논문'): return '030310001'
@@ -24,7 +24,7 @@ def get_bcode(s):
     elif (s == '산업/사회/건축/관광/창업'): return '031510001'
     else: return ''
 
-# 대상 코드화 함수
+# 대상 코드화 함수 (in craw_contest)
 def get_code1(s):
     if (s == '전체'): return [30, 76, 58, 86]
     elif (s == '대학생'): return [30]
@@ -33,7 +33,7 @@ def get_code1(s):
     elif (s == '외국인'): return [86]
     else: return ''
 
-# 대상 전처리 함수
+# 대상 전처리 함수 (in craw_contest)
 def set_code1(s):
     temp = ''
     if ('대학생' in s): temp += '대학생 '
@@ -44,14 +44,14 @@ def set_code1(s):
     result = ", ".join(result)
     return result
 
-# 모집상태 코드화 함수
+# 모집상태 코드화 함수 (in craw_contest)
 def get_sortkey(s):
     if (s == '전체'): return 'a.int_sort'
     elif (s == '접수예정'): return 'a.str_asdate'
     elif (s == '접수중'): return 'a.str_aedate'
     else: return ''
 
-# 지역 코드화 함수
+# 지역 코드화 함수 (in craw_contest)
 def get_area(s):
     if (s == '전국'): return [75]
     elif (s == '온라인'): return [97]
@@ -65,15 +65,28 @@ def get_area(s):
     elif (s == '제주'): return [66]
     else: return ''
 
+# 주최측 축약 함수 (in craw_contest)
+def com_summarize(s):
+    li = s.split(', ') # 콤마로 분리
+    com1 = li[0]
+    if (len(li) == 1): return com1 # 회사가 한곳이면 종료
+    remain_cnt = len(li) - 1
+    result = f"{com1} 외 {remain_cnt}곳" # 첫번째 기업 + 그 외로 새로운 문장 생성
+    return result
 
-# 크롤링 로직
+# 주간일정 크롤링 로직
+@app.post("/week")
+async def crawl_week():
+    pass
+
+# 공모전 크롤링 로직
 @app.post("/crawl")
-async def crawl_data(data:Dict[str, str]):
+async def crawl_contest(data:Dict[str, str]):
     field = data["field"]
     person = data["person"]
     sort = data["sort"]
     area = data["area"]
-    # 요청 로그 추가
+    # 로그확인
     logging.info(f"요청 받음: {field}, {person}, {sort}, {area}")
     try:
         # 플러터 데이터 페이로드에 매핑
@@ -101,16 +114,16 @@ async def crawl_data(data:Dict[str, str]):
         # BeautifulSoup 객체 생성하여 HTML 파싱
         soup = BeautifulSoup(response_data, 'html.parser') # BeautifulSoup 객체 생성하여 HTML 파싱
 
-        # 'list_style_2' 클래스를 가진 <div> 태그 찾기
+        # 'list_style_2' 클래스를 가진 div 태그 찾기
         div_tag = soup.find('div', class_='list_style_2').find('ul')
 
-        # 해당 <div> 태그 내의 모든 <li> 태그 추출
+        # 해당 div 태그 내의 모든 li 태그 추출
         li_tags = div_tag.find_all('li')
 
         # return할 데이터
         contents = []
 
-        # 각 <li> 태그 내부의 특정 <span> 태그와 <li> 태그 추출 및 출력
+        # 각 li 태그 내부의 span이랑 li 태그 추출
         for li in li_tags:
             li_content = []
             # 공모전 url 추출
@@ -126,45 +139,48 @@ async def crawl_data(data:Dict[str, str]):
                 title = title.strip()
                 print("공모전제목:", title)
                 li_content.append(title)
-            # 공모전 주최측 추출
-            li_icon_1 = li.find('li', class_='icon_1')
-            if li_icon_1 and li_icon_1.strong:
-                host = li_icon_1.strong.next_sibling.strip().lstrip('.')
-                host = host.strip()
-                print("주최:", host)
-                li_content.append(host)
+            # 공모전 주최 추출
+            li_com = li.find('li', class_='icon_1')
+            if li_com and li_com.strong:
+                com = li_com.strong.next_sibling.strip().lstrip('.')
+                com = com.strip()
+                print("주최:", com)
+                li_content.append(com)
             # 공모전 대상 추출
-            additional_info = li.find('ul', class_='host')
-            if additional_info and len(additional_info.find_all('li')) > 1:
-                target = additional_info.find_all('li')[1].get_text(strip=True).replace("대상.", "").strip()
+            li_target = li.find('ul', class_='host')
+            if li_target and len(li_target.find_all('li')) > 1:
+                target = li_target.find_all('li')[1].get_text(strip=True).replace("대상.", "").strip()
                 target = re.sub(r"\s+", " ", target)  # 과도한 공백 제거
                 target = target.strip()
                 print("대상:", target)
-                person_info = set_code1(target) # 대상 추출 시는 전처리 과정을 한번 더 거쳐 필요 없는 대상 단어를 문장에서 제거
-                li_content.append(person_info)
+                target = set_code1(target) # 대상 추출 시는 전처리 과정을 한번 더 거쳐 필요 없는 대상 단어를 문장에서 제거
+                li_content.append(target)
             # 공모전 접수기간 추출
-            span_step_1 = li.find('span', class_='step-1')
-            if span_step_1:
-                registration_period = span_step_1.get_text(strip=True).replace("접수", "").strip()
-                registration_period = registration_period.strip()
-                print("접수 기간:", registration_period)
-                li_content.append(registration_period)
+            step_1 = li.find('span', class_='step-1')
+            if step_1:
+                period1 = step_1.get_text(strip=True).replace("접수", "").strip()
+                period1 = period1.strip()
+                print("접수 기간:", period1)
+                li_content.append(period1)
             # 공모전 심사기간 추출
-            span_step_2 = li.find('span', class_='step-2')
-            if span_step_2:
-                evaluation_period = span_step_2.get_text(strip=True).replace("심사", "").strip()
-                evaluation_period = evaluation_period.strip()
-                print("심사 기간:", evaluation_period)
-                li_content.append(evaluation_period)
+            step_2 = li.find('span', class_='step-2')
+            if step_2:
+                period2 = step_2.get_text(strip=True).replace("심사", "").strip()
+                period2 = period2.strip()
+                print("심사 기간:", period2)
+                li_content.append(period2)
             # 최종 content에 합산, null인 리스트는 제외
             if (len(li_content) != 0):
                 contents.append(li_content)
                 print("-" * 80)  # 구분선
-
+        field = data["field"]
+        person = data["person"]
+        sort = data["sort"]
+        area = data["area"]
         if (len(contents) == 0): # 비어있으면 알려줌
-            return {"status": "empty", "contents": contents}
+            return {"status": "empty", "contents": contents, "fieldOpt": field, "personOpt": person, "sortOpt": sort, "areaOpt": area}
         else:
-            return {"status": "success", "contents": contents}
+            return {"status": "success", "contents": contents, "fieldOpt": field, "personOpt": person, "sortOpt": sort, "areaOpt": area}
     
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occurred: {e}")
