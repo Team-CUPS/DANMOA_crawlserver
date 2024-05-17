@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Query
 # 날짜 설정
 ymd = pytz.timezone('Asia/Seoul')
 ymd = datetime.now(ymd)
-day_code = ymd.weekday() - 1# 요일 코드 생성 (월~일 : 0~6)
+day_code = ymd.weekday() # 요일 코드 생성 (월~일 : 0~6)
 ymd = str(ymd)
 ymd = datetime(int(ymd[:4]), int(ymd[5:7]), int(ymd[8:10])) # 오늘 날짜 데이터 생성 (yyyy.mm.dd)
 
@@ -217,9 +217,9 @@ async def crawl_menu2():
         target_table = soup.find('table', summary="요일, 식단메뉴").find('tbody')
         if target_table:
             tr_tags = target_table.find_all('tr')
-            td_tags = tr_tags[day_code].find_all('td') #여기까지 하면 td_tags[1]로 오늘의 식단 HTML부분 추출 가능
+            td_tags = tr_tags[day_code].find_all('td') # 여기까지 하면 td_tags[1]로 오늘의 식단 HTML부분 추출 가능
 
-            # 중식, 석식 정보 추출
+            # 중식, 석식 정보 추출, 학생식당과 다른 구조로 인해 아래와 같은 크롤링 방식이 최선이었다.
             flag = 0
             for br in td_tags[1].find_all('br'):
                 info = br.next_sibling
