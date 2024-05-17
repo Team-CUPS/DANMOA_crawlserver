@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Query
 # 날짜 설정
 ymd = pytz.timezone('Asia/Seoul')
 ymd = datetime.now(ymd)
-day_code = ymd.weekday() # 요일 코드 생성 (월~일 : 0~6)
+day_code = ymd.weekday() - 1# 요일 코드 생성 (월~일 : 0~6)
 ymd = str(ymd)
 ymd = datetime(int(ymd[:4]), int(ymd[5:7]), int(ymd[8:10])) # 오늘 날짜 데이터 생성 (yyyy.mm.dd)
 
@@ -169,9 +169,9 @@ async def crawl_menu1():
                         if not br or br.name == 'b' or '코스' in br.next_sibling:
                             break
                         elif br.name != 'br' and len(br) > 1:
-                            course_info.append(re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' '))
+                            tmp = re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' ').split('*')[0]
+                            course_info.append(tmp)
                     if (len(course_info) > 1):
-                        course_info = ''.join(course_info).split('*')[0] # 소스는 제외시킴
                         print(course_info)
                         result.append(course_info)
 
@@ -230,9 +230,9 @@ async def crawl_menu2():
                         if not br or br.name == 'b' or '코스' in br.next_sibling:
                             break
                         elif br.name != 'br' and len(br) > 1:
-                            course_info.append(re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' '))
+                            tmp = re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' ').split('*')[0]
+                            course_info.append(tmp)
                     if (len(course_info) > 2):
-                        course_info = ''.join(course_info).split('*')[0] # 소스는 제외시킴
                         print(course_info)
                         result.append(course_info)
 
