@@ -175,7 +175,7 @@ async def crawl_menu1():
                         print(course_info)
                         result.append(course_info)
                     else:
-                        result.append([str(info)[:5] + " 운영X"])
+                        result.append([])
 
         if (len(result) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
             return {"status": "empty", "contents": result}
@@ -224,7 +224,8 @@ async def crawl_menu2():
             for br in td_tags[1].find_all('br'):
                 info = br.next_sibling
                 if info and isinstance(info, str) and (('코스' in info) or ('운영안함' in info)):
-                    course_info = ["중식" if flag == 0 else "석식"]
+                    course_info = []
+                    flag_str = ("중식" if flag == 0 else "석식")
                     flag = 1
                     while True:
                         br = br.next_sibling
@@ -233,12 +234,13 @@ async def crawl_menu2():
                             break
                         elif br.name != 'br' and len(br) > 1:
                             tmp = re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' ').split('*')[0]
+                            if ('코스' in tmp): tmp.replace('A코스', flag_str)
                             course_info.append(tmp)
                     if (len(course_info) > 2):
                         print(course_info)
                         result.append(course_info)
                     else:
-                        result.append([("중식" if flag == 0 else "석식") + " 운영X"])
+                        result.append([])
 
         if (len(result) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
             return {"status": "empty", "contents": result}
