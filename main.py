@@ -171,7 +171,7 @@ async def crawl_menu1():
                         elif br.name != 'br' and len(br) > 1:
                             course_info.append(re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' '))
                     if (len(course_info) > 1):
-                        course_info = course_info.split('*')[0] # 소스는 제외시킴
+                        course_info = ''.join(course_info).split('*')[0] # 소스는 제외시킴
                         print(course_info)
                         result.append(course_info)
 
@@ -232,7 +232,7 @@ async def crawl_menu2():
                         elif br.name != 'br' and len(br) > 1:
                             course_info.append(re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' '))
                     if (len(course_info) > 2):
-                        course_info = course_info.split('*')[0] # 소스는 제외시킴
+                        course_info = ''.join(course_info).split('*')[0] # 소스는 제외시킴
                         print(course_info)
                         result.append(course_info)
 
