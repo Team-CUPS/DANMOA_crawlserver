@@ -175,7 +175,7 @@ async def crawl_menu1():
                         print(course_info)
                         result.append(course_info)
                     else:
-                        result.append([str(info)[1:4] + " 운영X"])
+                        result.append([str(info)[:5] + " 운영X"])
 
         if (len(result) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
             return {"status": "empty", "contents": result}
