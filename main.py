@@ -318,6 +318,8 @@ async def crawl_contest(data:Dict[str, str]):
             li_com = li.find('li', class_='icon_1')
             if li_com and li_com.strong:
                 com = str(li_com.strong.next_sibling).strip().lstrip('.')
+                print("before 주최:", com)
+                print("before 주최 타입:", type(com))
                 com = com_summarize(com.strip())
                 print("주최:", com)
                 li_content.append(com)
