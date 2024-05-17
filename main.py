@@ -317,7 +317,7 @@ async def crawl_contest(data:Dict[str, str]):
             li_com = li.find('li', class_='icon_1')
             if li_com and li_com.strong:
                 com = li_com.strong.next_sibling.strip().lstrip('.')
-                com = com.strip()
+                com = com_summarize(com.strip())
                 print("주최:", com)
                 li_content.append(com)
             # 공모전 대상 추출
