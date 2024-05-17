@@ -234,7 +234,7 @@ async def crawl_menu2():
                             break
                         elif br.name != 'br' and len(br) > 1:
                             tmp = re.sub(r'[\'"\\$￦]', '', str(br).strip()).replace('  ', ' ').split('*')[0]
-                            if ('코스' in tmp): tmp.replace('A코스', flag_str)
+                            if ('코스' in tmp): tmp = tmp.replace('A코스', flag_str)
                             course_info.append(tmp)
                     if (len(course_info) > 2):
                         print(course_info)
