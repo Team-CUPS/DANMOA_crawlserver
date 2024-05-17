@@ -72,7 +72,8 @@ def get_area(s):
 
 # 주최측 축약 함수 (in crawl_contest)
 def com_summarize(s):
-    li = s.split(', ') # 콤마로 분리
+    s = s.replace(' ', '')
+    li = re.split(r'[,\./· ]+', s) # 분리
     com1 = li[0]
     if (len(li) == 1): return com1 # 회사가 한곳이면 종료
     remain_cnt = len(li) - 1
