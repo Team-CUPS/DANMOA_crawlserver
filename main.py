@@ -177,7 +177,7 @@ async def crawl_menu1():
                     else:
                         result.append([])
 
-        if (len(result) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
+        if (len(result[0]) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
             return {"status": "empty", "contents": result}
         else:
             return {"status": "success", "contents": result}
@@ -242,7 +242,7 @@ async def crawl_menu2():
                     else:
                         result.append([])
 
-        if (len(result) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
+        if (len(result[0]) == 0): # 비어있으면 알려줌 (공휴일, 주말 예외처리)
             return {"status": "empty", "contents": result}
         else:
             return {"status": "success", "contents": result}
